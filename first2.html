@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="ProcrastiSense - AI-powered academic procrastination pattern detector. Analyze your study habits and get actionable insights to improve productivity.">
+    <title>ProcrastiSense - Academic Procrastination Detector</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="firstjb1.css">
+</head>
+
+<body>
+    <!-- Animated Background Grid & Ambient Glows -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <!-- Auth Modal / Overlay -->
+    <div class="auth-modal-overlay" id="auth-modal">
+        <div class="auth-card">
+            <button class="auth-close-btn" id="auth-close-btn" aria-label="Close modal">&times;</button>
+            
+            <div class="auth-header">
+                <div class="auth-brand-icon">
+                    <svg width="32" height="32" viewBox="0 0 28 28" fill="none">
+                        <circle cx="14" cy="14" r="12" stroke="url(#modalBrandGrad)" stroke-width="2.5" stroke-dasharray="4 3" />
+                        <circle cx="14" cy="14" r="5" fill="url(#modalBrandGrad)" />
+                        <line x1="14" y1="14" x2="14" y2="6" stroke="url(#modalBrandGrad)" stroke-width="2" stroke-linecap="round" />
+                        <line x1="14" y1="14" x2="20" y2="14" stroke="url(#modalBrandGrad)" stroke-width="2" stroke-linecap="round" />
+                        <defs>
+                            <linearGradient id="modalBrandGrad" x1="0" y1="0" x2="28" y2="28">
+                                <stop stop-color="#a78bfa" />
+                                <stop offset="1" stop-color="#6366f1" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h2>Welcome Back</h2>
+                <p id="auth-subtitle">Verify your identity to sync your study logs</p>
+            </div>
+
+            <!-- Login Method Selector -->
+            <div class="auth-method-tabs" id="auth-method-tabs">
+                <button class="auth-tab active" data-method="phone" id="tab-auth-phone">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                        <line x1="12" y1="18" x2="12.01" y2="18"/>
+                    </svg>
+                    Phone
+                </button>
+                <button class="auth-tab" data-method="email" id="tab-auth-email">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                    Email
+                </button>
+            </div>
+
+            <!-- Step 1: Input Credentials -->
+            <form class="auth-step active" id="auth-step-1">
+                <div class="auth-input-group" id="group-phone-input">
+                    <label for="auth-phone">Phone Number</label>
+                    <div class="input-with-prefix">
+                        <span class="country-prefix">+91</span>
+                        <input type="tel" id="auth-phone" placeholder="00000 00000" autocomplete="tel">
+                    </div>
+                </div>
+
+                <div class="auth-input-group hidden" id="group-email-input">
+                    <label for="auth-email">Email Address</label>
+                    <input type="email" id="auth-email" placeholder="student@university.edu" autocomplete="email">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full-width" id="btn-send-otp">
+                    <span>Send OTP Verification Code</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+            </form>
+
+            <!-- Step 2: OTP Entry -->
+            <form class="auth-step" id="auth-step-2">
+                <div class="otp-info">
+                    <span>Sent 6-digit code to </span>
+                    <strong id="otp-destination-label">+91 00000 00000</strong>
+                    <button type="button" class="btn-link" id="btn-edit-credential">Change</button>
+                </div>
+
+                <div class="otp-inputs-container" id="otp-inputs-container">
+                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-digit" required>
+                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-digit" required>
+                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-digit" required>
+                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-digit" required>
+                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-digit" required>
+                    <input type="text" maxlength="1" pattern="[0-9]" inputmode="numeric" class="otp-digit" required>
+                </div>
+
+                <div class="otp-resend-row">
+                    <span id="resend-timer">Resend code in 0:30</span>
+                    <button type="button" class="btn-link hidden" id="btn-resend-otp">Resend OTP</button>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-full-width" id="btn-verify-otp">
+                    <span>Verify & Login</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-brand">
+            <div class="brand-icon">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                    <circle cx="14" cy="14" r="12" stroke="url(#brandGrad)" stroke-width="2.5" stroke-dasharray="4 3" />
+                    <circle cx="14" cy="14" r="5" fill="url(#brandGrad)" />
+                    <line x1="14" y1="14" x2="14" y2="6" stroke="url(#brandGrad)" stroke-width="2" stroke-linecap="round" />
+                    <line x1="14" y1="14" x2="20" y2="14" stroke="url(#brandGrad)" stroke-width="2" stroke-linecap="round" />
+                    <defs>
+                        <linearGradient id="brandGrad" x1="0" y1="0" x2="28" y2="28">
+                            <stop stop-color="#a78bfa" />
+                            <stop offset="1" stop-color="#6366f1" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <span class="brand-name">ProcrastiSense</span>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-tab="dashboard" id="tab-dashboard">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg>
+                Dashboard
+            </button>
+            <button class="nav-tab" data-tab="add-activity" id="tab-add-activity">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="16" />
+                    <line x1="8" y1="12" x2="16" y2="12" />
+                </svg>
+                Add Activity
+            </button>
+            <button class="nav-tab" data-tab="history" id="tab-history">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22,12 18,12 15,21 9,3 6,12 2,12" />
+                </svg>
+                Activity Log
+            </button>
+            <button class="nav-tab" data-tab="insights" id="tab-insights">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                    <path d="M2 17l10 5 10-5" />
+                    <path d="M2 12l10 5 10-5" />
+                </svg>
+                Insights
+            </button>
+        </div>
+
+        <div class="nav-actions">
+            <button class="btn btn-secondary btn-login-trigger" id="btn-login-open">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    <polyline points="10 17 15 12 10 7"/>
+                    <line x1="15" y1="12" x2="3" y2="12"/>
+                </svg>
+                <span id="user-display-label">Log In</span>
+            </button>
+
+            <button class="btn-icon theme-toggle" id="theme-toggle" title="Toggle theme">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- DASHBOARD TAB -->
+        <section class="tab-content active" id="content-dashboard">
+            <!-- Hero Banner Animation -->
+            <div class="dashboard-hero-banner">
+                <div class="hero-text-content">
+                    <h1>Academic Momentum Tracker</h1>
+                    <p>Detect procrastination habits early, optimize study windows, and maintain consistency.</p>
+                </div>
+                <div class="hero-live-badge">
+                    <span class="live-pulse"></span> Live Sync
+                </div>
+            </div>
+
+            <!-- Hero Stats Row -->
+            <div class="stats-row">
+                <div class="stat-card" id="stat-total">
+                    <div class="stat-icon stat-icon-purple">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14,2 14,8 20,8" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="total-activities">0</span>
+                        <span class="stat-label">Total Activities</span>
+                    </div>
+                </div>
+                <div class="stat-card" id="stat-risk">
+                    <div class="stat-icon stat-icon-red">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                            <line x1="12" y1="9" x2="12" y2="13" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="procrastination-count">0</span>
+                        <span class="stat-label">Procrastinated Tasks</span>
+                    </div>
+                </div>
+                <div class="stat-card" id="stat-ontime">
+                    <div class="stat-icon stat-icon-green">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22,4 12,14.01 9,11.01" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="ontime-count">0</span>
+                        <span class="stat-label">On-Time Completions</span>
+                    </div>
+                </div>
+                <div class="stat-card" id="stat-score">
+                    <div class="stat-icon stat-icon-amber">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="health-score">&mdash;</span>
+                        <span class="stat-label">Health Score</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Procrastination Gauge and Pattern Detection -->
+            <div class="dashboard-grid">
+                <div class="card card-gauge">
+                    <div class="card-header">
+                        <h2>Procrastination Level</h2>
+                        <span class="badge badge-live" id="gauge-badge">LIVE</span>
+                    </div>
+                    <div class="gauge-container">
+                        <div class="gauge" id="procrastination-gauge">
+                            <svg viewBox="0 0 200 120" class="gauge-svg">
+                                <defs>
+                                    <linearGradient id="gaugeGradLow" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#22c55e" />
+                                        <stop offset="100%" stop-color="#86efac" />
+                                    </linearGradient>
+                                    <linearGradient id="gaugeGradMed" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#f59e0b" />
+                                        <stop offset="100%" stop-color="#fbbf24" />
+                                    </linearGradient>
+                                    <linearGradient id="gaugeGradHigh" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#ef4444" />
+                                        <stop offset="100%" stop-color="#f87171" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="var(--gauge-bg)" stroke-width="14" stroke-linecap="round" />
+                                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="url(#gaugeGradLow)" stroke-width="14" stroke-linecap="round" stroke-dasharray="0 251.33" id="gauge-arc" class="gauge-arc" />
+                                <line x1="100" y1="100" x2="100" y2="30" stroke="var(--text-primary)" stroke-width="2.5" stroke-linecap="round" id="gauge-needle" class="gauge-needle" transform="rotate(-90 100 100)" />
+                                <circle cx="100" cy="100" r="5" fill="var(--text-primary)" />
+                            </svg>
+                            <div class="gauge-value" id="gauge-value">0%</div>
+                            <div class="gauge-label" id="gauge-label">No Data Yet</div>
+                        </div>
+                        <div class="gauge-legend">
+                            <div class="legend-item"><span class="legend-dot green"></span> Low (0-35%)</div>
+                            <div class="legend-item"><span class="legend-dot amber"></span> Medium (36-65%)</div>
+                            <div class="legend-item"><span class="legend-dot red"></span> High (66-100%)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-patterns">
+                    <div class="card-header">
+                        <h2>Detected Patterns</h2>
+                        <span class="badge badge-count" id="pattern-count">0</span>
+                    </div>
+                    <div class="patterns-list" id="patterns-list">
+                        <div class="empty-state">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                            <p>Add activities to detect patterns</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Chart -->
+            <div class="card card-timeline">
+                <div class="card-header">
+                    <h2>Activity Timeline</h2>
+                    <div class="timeline-legend">
+                        <span class="tl-legend-item"><span class="tl-dot tl-on-time"></span> On Time</span>
+                        <span class="tl-legend-item"><span class="tl-dot tl-last-min"></span> Last Minute</span>
+                        <span class="tl-legend-item"><span class="tl-dot tl-late"></span> Late/Missed</span>
+                    </div>
+                </div>
+                <div class="timeline-container" id="timeline-container">
+                    <div class="empty-state">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4">
+                            <polyline points="22,12 18,12 15,21 9,3 6,12 2,12" />
+                        </svg>
+                        <p>Your activity timeline will appear here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delay Distribution Bar Chart -->
+            <div class="card card-chart">
+                <div class="card-header">
+                    <h2>Delay Distribution</h2>
+                    <p class="card-subtitle">How late tasks are started relative to deadline</p>
+                </div>
+                <div class="bar-chart-container" id="bar-chart-container">
+                    <div class="empty-state">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4">
+                            <rect x="3" y="12" width="4" height="9" rx="1" />
+                            <rect x="10" y="7" width="4" height="14" rx="1" />
+                            <rect x="17" y="3" width="4" height="18" rx="1" />
+                        </svg>
+                        <p>Add activities to see delay distribution</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ADD ACTIVITY TAB -->
+        <section class="tab-content" id="content-add-activity">
+            <div class="form-page">
+                <div class="form-header">
+                    <h1>Log New Activity</h1>
+                    <p>Record an academic task to track your productivity patterns</p>
+                </div>
+                <form class="activity-form" id="activity-form">
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="task-name">Task Name</label>
+                            <input type="text" id="task-name" placeholder="e.g. Physics Assignment Ch.5" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-type">Task Type</label>
+                            <select id="task-type" required>
+                                <option value="">Select type...</option>
+                                <option value="assignment">Assignment</option>
+                                <option value="exam-prep">Exam Preparation</option>
+                                <option value="project">Project</option>
+                                <option value="reading">Reading</option>
+                                <option value="lab">Lab Work</option>
+                                <option value="essay">Essay/Paper</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-subject">Subject / Course</label>
+                            <input type="text" id="task-subject" placeholder="e.g. Physics 101" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="date-assigned">Date Assigned</label>
+                            <input type="date" id="date-assigned" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="date-deadline">Deadline</label>
+                            <input type="date" id="date-deadline" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="date-started">Date Started Working</label>
+                            <input type="date" id="date-started" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="date-completed">Date Completed</label>
+                            <input type="date" id="date-completed">
+                            <span class="form-hint">Leave blank if not yet completed</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-difficulty-input">Difficulty Level</label>
+                            <div class="difficulty-selector" id="task-difficulty">
+                                <button type="button" class="diff-btn" data-value="1">1</button>
+                                <button type="button" class="diff-btn" data-value="2">2</button>
+                                <button type="button" class="diff-btn active" data-value="3">3</button>
+                                <button type="button" class="diff-btn" data-value="4">4</button>
+                                <button type="button" class="diff-btn" data-value="5">5</button>
+                            </div>
+                            <span class="form-hint">1 = Easy, 5 = Very Hard</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-priority">Priority</label>
+                            <select id="task-priority">
+                                <option value="low">Low</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="btn-load-sample">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="7,10 12,15 17,10" />
+                                <line x1="12" y1="15" x2="12" y2="3" />
+                            </svg>
+                            Load Sample Data
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="btn-submit-activity">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="20,6 9,17 4,12" />
+                            </svg>
+                            Save Activity
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- HISTORY TAB -->
+        <section class="tab-content" id="content-history">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Activity Log</h2>
+                    <div class="header-actions">
+                        <div class="search-box">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                            <input type="text" placeholder="Search activities..." id="search-activities">
+                        </div>
+                        <select id="filter-type" class="filter-select">
+                            <option value="all">All Types</option>
+                            <option value="assignment">Assignments</option>
+                            <option value="exam-prep">Exam Prep</option>
+                            <option value="project">Projects</option>
+                            <option value="reading">Reading</option>
+                            <option value="lab">Lab Work</option>
+                            <option value="essay">Essay/Paper</option>
+                        </select>
+                        <button class="btn btn-danger-outline" id="btn-clear-all" title="Clear All Data">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3,6 5,6 21,6" />
+                                <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2v2" />
+                            </svg>
+                            Clear All
+                        </button>
+                    </div>
+                </div>
+                <div class="activity-table-wrapper" id="activity-table-wrapper">
+                    <table class="activity-table" id="activity-table">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Type</th>
+                                <th>Subject</th>
+                                <th>Assigned</th>
+                                <th>Deadline</th>
+                                <th>Started</th>
+                                <th>Completed</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activity-tbody">
+                        </tbody>
+                    </table>
+                    <div class="empty-state" id="history-empty">
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.35">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <line x1="3" y1="9" x2="21" y2="9" />
+                            <line x1="9" y1="21" x2="9" y2="9" />
+                        </svg>
+                        <p>No activities logged yet</p>
+                        <span>Head to "Add Activity" to get started</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INSIGHTS TAB -->
+        <section class="tab-content" id="content-insights">
+            <div class="insights-page">
+                <div class="insights-header">
+                    <h1>Behavioural Insights</h1>
+                    <p>AI-generated analysis of your academic procrastination patterns</p>
+                </div>
+                <div class="insight-cards" id="insight-cards">
+                    <div class="empty-state large">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.3">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                        </svg>
+                        <p>Add at least 3 activities to generate insights</p>
+                        <span>The more data you provide, the more accurate the analysis becomes</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="firstjb1.js"></script>
+</body>
+</html>
